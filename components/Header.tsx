@@ -50,6 +50,7 @@ export default function Header() {
   const navItems = [
     { href: "/characters", label: "캐릭터" },
     { href: "/items", label: "아이템" },
+    { href: "/skills", label: "스킬" },
     { href: "/guides", label: "가이드" },
     { href: "/search", label: "검색" },
   ];

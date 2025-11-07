@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createApiResponse, createApiError } from "@/lib/api";
-import { dummyCharacters, dummyItems, dummyGuides } from "@/lib/dummy-data";
+import { dummyCharacters, dummyItems, dummyGuides, dummySkills } from "@/lib/dummy-data";
 
 export const dynamic = "force-dynamic";
 
 interface SearchResult {
   id: string;
-  type: "character" | "item" | "guide";
+  type: "character" | "item" | "skill" | "guide";
   title: string;
   description: string;
   data: any;
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("q") || "";
-    const type = searchParams.get("type") || "all"; // all, character, item, guide
+    const type = searchParams.get("type") || "all"; // all, character, item, skill, guide
     const page = parseInt(searchParams.get("page") || "1");
     const pageSize = parseInt(searchParams.get("pageSize") || "20");
 
@@ -70,6 +70,27 @@ export async function GET(request: NextRequest) {
           title: item.name,
           description: item.description,
           data: item,
+        });
+      });
+    }
+
+    // 스킬 검색
+    if (type === "all" || type === "skill") {
+      const matchedSkills = dummySkills.filter(
+        (skill) =>
+          skill.name.toLowerCase().includes(searchLower) ||
+          skill.description.toLowerCase().includes(searchLower) ||
+          skill.class.toLowerCase().includes(searchLower) ||
+          skill.type.toLowerCase().includes(searchLower)
+      );
+
+      matchedSkills.forEach((skill) => {
+        results.push({
+          id: `skill-${skill.id}`,
+          type: "skill",
+          title: skill.name,
+          description: `${skill.class} · ${skill.type} · Lv.${skill.level}`,
+          data: skill,
         });
       });
     }

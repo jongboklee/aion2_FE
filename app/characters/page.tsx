@@ -12,7 +12,7 @@ export default function CharactersPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedClass, setSelectedClass] = useState<string>("all");
 
-  const classes = ["all", "전사", "도적", "마법사", "사제"];
+  const classes = ["all", "검성", "수호성", "살성", "궁성", "마도성", "정령성", "호법성", "치유성"];
 
   useEffect(() => {
     const fetchCharacters = async () => {

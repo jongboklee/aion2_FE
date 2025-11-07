@@ -56,6 +56,24 @@ export default function Home() {
           </Card>
         </Link>
 
+        <Link href="/skills">
+          <Card hover>
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">스킬 정보</h2>
+                <p className="text-gray-600 dark:text-gray-400">
+                  각 클래스별 스킬 정보를 확인하세요
+                </p>
+              </div>
+            </div>
+          </Card>
+        </Link>
+
         <Link href="/guides">
           <Card hover>
             <div className="flex items-start gap-4">
