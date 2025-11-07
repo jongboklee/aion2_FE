@@ -97,12 +97,39 @@ vercel env add NEXTAUTH_URL production
 vercel env ls
 ```
 
+## 🔄 환경 변수 설정 후 재배포
+
+**중요:** 환경 변수를 설정한 후에는 수동으로 재배포해야 합니다!
+
+### 방법 1: Vercel Dashboard에서 재배포
+
+1. Vercel Dashboard > 프로젝트 페이지 접속
+2. **Deployments** 탭 클릭
+3. 최신 배포(또는 실패한 배포) 옆의 **"..."** 메뉴 클릭
+4. **"Redeploy"** 선택
+5. 확인 대화상자에서 **"Redeploy"** 클릭
+
+또는
+
+1. 프로젝트 페이지에서 **"Deployments"** 섹션 확인
+2. 실패한 배포 옆의 **"Redeploy"** 버튼 클릭
+
+### 방법 2: GitHub에 새 커밋 푸시
+
+GitHub에 푸시하면 자동으로 재배포됩니다:
+
+```bash
+git commit --allow-empty -m "trigger redeploy"
+git push origin main
+```
+
 ## ⚠️ 중요 사항
 
 ### 1. NEXTAUTH_URL 설정
 - 프로덕션 URL로 변경 필요
 - 예: `https://aion2-fe.vercel.app`
 - 배포 후 Vercel에서 제공하는 URL 사용
+- **주의:** 환경 변수 설정 후 재배포해야 적용됩니다!
 
 ### 2. OAuth Redirect URI 업데이트
 OAuth를 사용하는 경우, 각 OAuth 제공자 설정에서 Redirect URI를 업데이트해야 합니다:
@@ -153,6 +180,7 @@ openssl rand -base64 32
 ### 환경 변수 관련 에러
 - `NEXT_PUBLIC_` 접두사가 있는 변수는 클라이언트에서 접근 가능
 - 서버 전용 변수는 `NEXT_PUBLIC_` 없이 설정
+- **환경 변수 설정 후 반드시 재배포 필요!**
 
 ### OAuth 에러
 - Redirect URI가 정확히 설정되었는지 확인
@@ -163,4 +191,3 @@ openssl rand -base64 32
 - [Vercel 공식 문서](https://vercel.com/docs)
 - [Next.js 배포 가이드](https://nextjs.org/docs/deployment)
 - [NextAuth.js 배포 가이드](https://next-auth.js.org/configuration/options#nextauth_url)
-
