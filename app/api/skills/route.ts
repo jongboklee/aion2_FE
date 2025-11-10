@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 /**
  * DB에서 스킬 데이터를 Skill 타입으로 변환
  */
-function mapDbSkillToSkill(dbSkill: any): Skill {
+export function mapDbSkillToSkill(dbSkill: any): Skill {
   return {
     id: dbSkill.id,
     name: dbSkill.name,
@@ -29,6 +29,95 @@ function mapDbSkillToSkill(dbSkill: any): Skill {
     specialization: dbSkill.specialization || undefined,
     effects: dbSkill.effects || undefined,
     icon: dbSkill.icon || undefined,
+  };
+}
+
+type SkillPayload = Omit<Skill, "id"> & { id?: string };
+
+function normalizeNumber(value: unknown, field: string) {
+  const num = typeof value === "string" ? Number(value) : value;
+  if (typeof num !== "number" || Number.isNaN(num)) {
+    throw new Error(`${field} 값이 올바르지 않습니다.`);
+  }
+  return num;
+}
+
+function normalizeCastTime(value: unknown) {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value.trim();
+  }
+  throw new Error("시전 시간 값이 올바르지 않습니다.");
+}
+
+function normalizeStringArray(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item));
+  }
+  return undefined;
+}
+
+export function validateSkillPayload(payload: any): SkillPayload {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("요청 본문이 올바르지 않습니다.");
+  }
+
+  const requiredFields = ["name", "class", "level", "type", "cooldown", "mpCost", "range", "castTime", "description"];
+  for (const field of requiredFields) {
+    if (payload[field] === undefined || payload[field] === null || payload[field] === "") {
+      throw new Error(`${field} 값은 필수입니다.`);
+    }
+  }
+
+  const normalized: SkillPayload = {
+    id: payload.id,
+    name: String(payload.name).trim(),
+    class: payload.class,
+    level: normalizeNumber(payload.level, "level"),
+    type: payload.type,
+    element: payload.element ?? undefined,
+    cooldown: normalizeNumber(payload.cooldown, "cooldown"),
+    mpCost: normalizeNumber(payload.mpCost, "mpCost"),
+    range: normalizeNumber(payload.range, "range"),
+    castTime: normalizeCastTime(payload.castTime),
+    description: String(payload.description).trim(),
+    groggyGauge: payload.groggyGauge !== undefined && payload.groggyGauge !== null
+      ? normalizeNumber(payload.groggyGauge, "groggyGauge")
+      : undefined,
+    maxCharge: payload.maxCharge !== undefined && payload.maxCharge !== null
+      ? normalizeNumber(payload.maxCharge, "maxCharge")
+      : undefined,
+    tags: normalizeStringArray(payload.tags),
+    target: payload.target ? String(payload.target).trim() : undefined,
+    specialization: normalizeStringArray(payload.specialization),
+    effects: payload.effects ?? undefined,
+    icon: payload.icon ? String(payload.icon).trim() : undefined,
+  };
+
+  return normalized;
+}
+
+export function mapSkillPayloadToDb(skill: SkillPayload) {
+  return {
+    name: skill.name,
+    class: skill.class,
+    level: Math.round(skill.level),
+    type: skill.type,
+    element: skill.element ?? null,
+    cooldown: Math.round(skill.cooldown),
+    mp_cost: Math.round(skill.mpCost),
+    range: Math.round(skill.range),
+    cast_time: typeof skill.castTime === "string" ? skill.castTime : skill.castTime.toString(),
+    description: skill.description,
+    groggy_gauge: skill.groggyGauge !== undefined ? Math.round(skill.groggyGauge) : null,
+    max_charge: skill.maxCharge !== undefined ? Math.round(skill.maxCharge) : null,
+    tags: skill.tags ?? null,
+    target: skill.target ?? null,
+    specialization: skill.specialization ?? null,
+    effects: skill.effects ?? null,
+    icon: skill.icon ?? null,
   };
 }
 
@@ -136,7 +225,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const skill = body;
+    let skillPayload: SkillPayload;
+
+    try {
+      skillPayload = validateSkillPayload(body);
+    } catch (validationError) {
+      return NextResponse.json(
+        createApiError(validationError instanceof Error ? validationError.message : "잘못된 요청입니다", 400),
+        { status: 400 }
+      );
+    }
 
     // Supabase가 설정되어 있는지 확인
     if (!supabase) {
@@ -146,26 +244,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // DB 형식으로 변환
-    const dbSkill = {
-      name: skill.name,
-      class: skill.class,
-      level: skill.level,
-      type: skill.type,
-      element: skill.element || null,
-      cooldown: skill.cooldown,
-      mp_cost: skill.mpCost,
-      range: skill.range,
-      cast_time: typeof skill.castTime === "string" ? skill.castTime : skill.castTime.toString(),
-      description: skill.description,
-      groggy_gauge: skill.groggyGauge || null,
-      max_charge: skill.maxCharge || null,
-      tags: skill.tags || null,
-      target: skill.target || null,
-      specialization: skill.specialization || null,
-      effects: skill.effects || null,
-      icon: skill.icon || null,
-    };
+    const dbSkill = mapSkillPayloadToDb(skillPayload);
 
     const { data, error } = await supabase.from("skills").insert(dbSkill).select().single();
 

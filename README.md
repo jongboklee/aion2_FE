@@ -20,6 +20,7 @@
 - ✅ SEO 최적화
 - ✅ 다크모드 지원
 - ✅ 타입 안정성 (TypeScript)
+- ✅ 스킬 관리 대시보드(`/skills/manage`)를 통한 DB CRUD 지원
 
 ## 프로젝트 구조
 
@@ -71,11 +72,21 @@ npm run build
 # 프로덕션 서버 실행
 npm start
 
+# 스킬 데이터 삽입 (Supabase 연결 시)
+npm run seed:skills
+
 # 린트 실행
 npm run lint
 ```
 
 개발 서버는 `http://localhost:3000`에서 실행됩니다.
+
+### 스킬 관리 관리자 페이지
+
+- 경로: `/skills/manage`
+- 기능: 스킬 등록, 수정, 삭제 및 클래스별 필터
+- Supabase 환경 변수(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)를 설정하면 실제 DB에 반영됩니다.
+- 더미 데이터를 한 번에 넣고 싶다면 `npm run seed:skills` 명령을 실행하세요. (기존 데이터가 있다면 중복 여부를 확인하세요.)
 
 ## 주요 컴포넌트
 
