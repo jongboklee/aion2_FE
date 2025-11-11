@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createApiResponse, createApiError } from "@/lib/api";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { users } from "@/lib/users";
 
 export const dynamic = "force-dynamic";
 
@@ -26,12 +27,13 @@ export async function GET(request: NextRequest) {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string };
 
-      // TODO: 실제 DB에서 사용자 정보 조회
-      // 현재는 토큰에서 정보만 반환
+      const user = users.find((u) => u.id === decoded.userId);
+
       return NextResponse.json(
         createApiResponse({
           id: decoded.userId,
           email: decoded.email,
+          name: user?.name,
         })
       );
     } catch (error) {

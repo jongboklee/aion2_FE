@@ -9,6 +9,8 @@ export interface User {
   password: string;
   name: string;
   createdAt: Date;
+  resetToken?: string | null;
+  resetTokenExpires?: Date | null;
 }
 
 // 임시 메모리 저장소

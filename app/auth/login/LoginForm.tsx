@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 export default function LoginForm() {
@@ -12,6 +12,17 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const successMessage = useMemo(() => {
+    if (searchParams.get("signup") === "success") {
+      return "회원가입이 완료되었습니다. 방금 가입한 계정으로 로그인해 주세요.";
+    }
+    if (searchParams.get("reset") === "success") {
+      return "비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요.";
+    }
+    return null;
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +132,12 @@ export default function LoginForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {successMessage && (
+          <div className="bg-green-900/20 border border-green-700 rounded-lg p-4">
+            <p className="text-sm text-green-300">{successMessage}</p>
+          </div>
+        )}
+
         {error && (
           <div className="bg-red-900/20 border border-red-800 rounded-lg p-4">
             <p className="text-sm text-red-400">{error}</p>
