@@ -44,6 +44,7 @@ async function seedSkills() {
     class: skill.class,
     level: skill.level,
     type: skill.type,
+    usage_type: skill.usageType,
     element: skill.element || null,
     cooldown: Math.round(skill.cooldown), // 정수로 변환
     mp_cost: Math.round(skill.mpCost), // 정수로 변환
@@ -53,9 +54,12 @@ async function seedSkills() {
     groggy_gauge: skill.groggyGauge ? Math.round(skill.groggyGauge) : null, // 정수로 변환
     max_charge: skill.maxCharge ? Math.round(skill.maxCharge) : null, // 정수로 변환
     tags: skill.tags || null,
+    categories: skill.categories || null,
     target: skill.target || null,
     specialization: skill.specialization || null,
     effects: skill.effects || null,
+    weapon_requirement: skill.weaponRequirement || null,
+    area: skill.area || null,
     icon: skill.icon || null,
   }));
 

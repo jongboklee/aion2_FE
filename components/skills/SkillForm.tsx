@@ -229,7 +229,7 @@ export default function SkillForm({ mode, initialValue, onSubmit, onCancel, isSu
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">스킬 타입 *</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">스킬 성격 *</label>
           <select
             value={form.type}
             onChange={handleChange("type")}

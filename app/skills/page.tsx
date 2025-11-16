@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createMetadata } from "@/lib/metadata";
 import Card from "@/components/ui/Card";
 import { LoadingSpinner, ErrorMessage, EmptyState } from "@/components/ui/Loading";
 import type { Skill, CharacterClass } from "@/types";
@@ -19,15 +18,24 @@ const skillTypeColors: Record<string, string> = {
   강화: "bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-300",
 };
 
+const usageTypeColors: Record<string, string> = {
+  액티브: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300",
+  조건기: "bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300",
+  패시브: "bg-slate-100 dark:bg-slate-900/40 text-slate-800 dark:text-slate-300",
+  스티그마: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300",
+};
+
 const classes: CharacterClass[] = ["검성", "수호성", "살성", "궁성", "마도성", "정령성", "호법성", "치유성"];
 const skillTypes = ["공격", "방어", "버프", "디버프", "회복", "소환", "이동", "기타", "강화"];
+const usageTypes = ["액티브", "조건기", "패시브", "스티그마"] as const;
 
 export default function SkillsPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedClass, setSelectedClass] = useState<string>("all");
-  const [selectedType, setSelectedType] = useState<string>("all");
+  const [selectedType, setSelectedType] = useState<string>("all"); // 스킬 성격
+  const [selectedUsageType, setSelectedUsageType] = useState<string>("all"); // 스킬 타입(액티브/조건기/패시브/스티그마)
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -35,12 +43,15 @@ export default function SkillsPage() {
       setError(null);
 
       try {
-        const params = new URLSearchParams();
+        const params = new URLSearchParams({ pageSize: "100" });
         if (selectedClass !== "all") {
           params.set("class", selectedClass);
         }
         if (selectedType !== "all") {
           params.set("type", selectedType);
+        }
+        if (selectedUsageType !== "all") {
+          params.set("usageType", selectedUsageType);
         }
 
         const response = await fetch(`/api/skills?${params.toString()}`);
@@ -61,7 +72,7 @@ export default function SkillsPage() {
     };
 
     fetchSkills();
-  }, [selectedClass, selectedType]);
+  }, [selectedClass, selectedType, selectedUsageType]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -102,7 +113,7 @@ export default function SkillsPage() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            스킬 타입
+            스킬 성격
           </label>
           <div className="flex flex-wrap gap-2">
             <button
@@ -123,6 +134,37 @@ export default function SkillsPage() {
                   selectedType === type
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            스킬 타입
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedUsageType("all")}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedUsageType === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+              }`}
+            >
+              전체
+            </button>
+            {usageTypes.map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedUsageType(type)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                  selectedUsageType === type
+                    ? `${usageTypeColors[type]} border-transparent`
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 border-transparent"
                 }`}
               >
                 {type}
@@ -153,9 +195,18 @@ export default function SkillsPage() {
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                           {skill.name}
                         </h2>
-                        <span className={`px-2 py-1 text-xs font-medium rounded ${skillTypeColors[skill.type]}`}>
-                          {skill.type}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded ${usageTypeColors[skill.usageType] ?? "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300"}`}
+                          >
+                            {skill.usageType}
+                          </span>
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded ${skillTypeColors[skill.type] ?? "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300"}`}
+                          >
+                            {skill.type}
+                          </span>
+                        </div>
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                         {skill.class} · Lv.{skill.level}

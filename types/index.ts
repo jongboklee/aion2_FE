@@ -25,6 +25,7 @@ export interface Skill {
   class: CharacterClass;
   level: number;
   type: SkillType;
+  usageType: SkillUsageType;
   element?: SkillElement;
   cooldown: number;
   mpCost: number;
@@ -35,12 +36,16 @@ export interface Skill {
   maxCharge?: number;
   tags?: string[]; // "이동 가능", "논타겟", "차지 스킬" 등
   target?: string; // "단일 대상(적대)", "시전자 주변 4인(적대)" 등
+  categories?: string[]; // 카드 상단에 표시되는 분류 (물리/공격/약화 등)
   specialization?: string[]; // 특화 설명
+  weaponRequirement?: string;
+  area?: string;
   effects?: SkillEffect[];
   icon?: string;
 }
 
 export type SkillType = "공격" | "방어" | "버프" | "디버프" | "회복" | "소환" | "이동" | "기타" | "강화";
+export type SkillUsageType = "액티브" | "조건기" | "패시브" | "스티그마";
 export type SkillElement = "불" | "물" | "바람" | "땅" | "신성" | "어둠";
 
 export interface SkillEffect {

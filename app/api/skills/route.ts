@@ -16,6 +16,7 @@ export function mapDbSkillToSkill(dbSkill: any): Skill {
     class: dbSkill.class,
     level: dbSkill.level,
     type: dbSkill.type,
+    usageType: dbSkill.usage_type,
     element: dbSkill.element || undefined,
     cooldown: dbSkill.cooldown,
     mpCost: dbSkill.mp_cost,
@@ -64,7 +65,7 @@ export function validateSkillPayload(payload: any): SkillPayload {
     throw new Error("요청 본문이 올바르지 않습니다.");
   }
 
-  const requiredFields = ["name", "class", "level", "type", "cooldown", "mpCost", "range", "castTime", "description"];
+  const requiredFields = ["name", "class", "level", "type", "usageType", "cooldown", "mpCost", "range", "castTime", "description"];
   for (const field of requiredFields) {
     if (payload[field] === undefined || payload[field] === null || payload[field] === "") {
       throw new Error(`${field} 값은 필수입니다.`);
@@ -77,6 +78,7 @@ export function validateSkillPayload(payload: any): SkillPayload {
     class: payload.class,
     level: normalizeNumber(payload.level, "level"),
     type: payload.type,
+    usageType: payload.usageType,
     element: payload.element ?? undefined,
     cooldown: normalizeNumber(payload.cooldown, "cooldown"),
     mpCost: normalizeNumber(payload.mpCost, "mpCost"),
@@ -105,6 +107,7 @@ export function mapSkillPayloadToDb(skill: SkillPayload) {
     class: skill.class,
     level: Math.round(skill.level),
     type: skill.type,
+    usage_type: skill.usageType,
     element: skill.element ?? null,
     cooldown: Math.round(skill.cooldown),
     mp_cost: Math.round(skill.mpCost),
@@ -132,6 +135,7 @@ export async function GET(request: NextRequest) {
     const pageSize = parseInt(searchParams.get("pageSize") || "20");
     const classType = searchParams.get("class");
     const skillType = searchParams.get("type");
+    const usageType = searchParams.get("usageType");
 
     // Supabase가 설정되어 있는지 확인
     if (supabase) {
@@ -144,6 +148,9 @@ export async function GET(request: NextRequest) {
       }
       if (skillType) {
         query = query.eq("type", skillType);
+      }
+      if (usageType) {
+        query = query.eq("usage_type", usageType);
       }
 
       // 페이지네이션
@@ -185,11 +192,14 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      // 스킬 타입 필터 적용
+      // 스킬 성격(type) 필터 적용
       if (skillType) {
-        filteredSkills = filteredSkills.filter(
-          (skill) => skill.type === skillType
-        );
+        filteredSkills = filteredSkills.filter((skill) => skill.type === skillType);
+      }
+
+      // 스킬 타입(usageType) 필터 적용
+      if (usageType) {
+        filteredSkills = filteredSkills.filter((skill) => skill.usageType === usageType);
       }
 
       // 페이지네이션

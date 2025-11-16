@@ -214,7 +214,7 @@ export default function ManageSkillsPage() {
                       <div>
                         <p className="text-lg font-semibold text-gray-900 dark:text-white">{skill.name}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {skill.class} · {skill.type} · Lv.{skill.level}
+                          {skill.class} · {skill.usageType} · {skill.type} · Lv.{skill.level}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
